@@ -220,7 +220,7 @@ elif pagina_seleccionada == "Ranking":
                     st.write(f"{i}. ⭐ {d['puntos']} - {d['comentario']}") #anidamos los dos resultados
 
 elif pagina_seleccionada == "¿Sin tiempo de elegir?":
-    st.title("¿Sin tiempo de elegir?")
+    st.title("¿Sin tiempo de elegir?⏰")
     st.info("¿Muy ocupado? Encuentra tu combo perfecto y ahorra tiempo.")
     
     df = pd.read_excel("base.xlsx") 
