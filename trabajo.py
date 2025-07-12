@@ -168,11 +168,11 @@ elif pagina_seleccionada == "Recomendaciones":
 # Mostramos resultados
     if tipo_general != "Selecciona una opción" and zona != "Selecciona una zona" and not filtro.empty:
         st.subheader("🎯 Te recomendamos:")
-        resultados = filtro[['producto', 'descripción', 'lugar', 'zona pucp', 'precio', 'Foto del producto']].head(5)
+        resultados = filtro[['producto', 'descripción', 'lugar', 'zona pucp', 'precio', 'Foto del lugar']].head(5)
 
         for i, row in resultados.iterrows():
             st.markdown("---")  # Separador visual
-            st.image(row['Foto del producto'], width=300, caption=row['lugar'])  # Mostramos imagen
+            st.image(row['Foto del lugar'], width=300, caption=row['lugar'])  # Mostramos imagen
 
             st.write(f"🍴 **Producto:** {row['producto']}")
             st.write(f"📍 **Lugar:** {row['lugar']} ({row['zona pucp']})")
