@@ -1,11 +1,11 @@
 [theme]
 
-primaryColor = "697A21"
+primaryColor = "#697A21"
 
-backgroundColor = "f6f1d1"
+backgroundColor = "#f6f1d1"
 
-secondaryBackgroundColor = "DE1A1A"
+secondaryBackgroundColor = "#DE1A1A"
 
-textColor = "1b2021"
+textColor = "#1b2021"
 
 font = "monospace"
