@@ -89,13 +89,19 @@ elif pagina_seleccionada == "Mapa":
     if zona_sel != "Todas":
         df_filtrado = df_filtrado[df_filtrado["zona pucp"] == zona_sel]
 
+
+    
     # Mostramos la tabla
     if not df_filtrado.empty:
-        st.subheader("🍴 Lista de establecimientos:")
-        st.dataframe(
-            df_filtrado[['lugar', 'zona pucp', 'horario', 'Medio de pago', 'lugares']].reset_index(drop=True), #con ello decidimos qué info mostrar
-            use_container_width=True
-        )
+        st.subheader("🍴 Lista de establecimientos con imagen:")
+        for _, row in df_filtrado.iterrows():
+            st.image(row['lugares'], width=300)  # <-- la columna "lugares" contiene el link a la imagen
+            st.write(f"📍 **Lugar:** {row['lugar']}")
+            st.write(f"🏫 **Zona PUCP:** {row['zona pucp']}")
+            st.write(f"🕒 **Horario:** {row['horario']}")
+            st.write(f"💳 **Medio de pago:** {row['Medio de pago']}")
+            st.markdown("---")
+
     else:
         st.warning("No se encontraron lugares con esos filtros.")
 
