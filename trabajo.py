@@ -101,7 +101,7 @@ elif pagina_seleccionada == "Mapa":
 
 elif pagina_seleccionada == "Recomendaciones":
     st.title("Recomendaciones personalizadas⭐")
-    st.info("Responde unas preguntas y te diremos qué comer hoy.")
+    st.info("Responde unas preguntas y te diremos qué podrías comer hoy😋")
 
     # Cargar base
     df = pd.read_excel("base.xlsx")
