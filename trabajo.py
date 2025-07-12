@@ -37,15 +37,15 @@ if pagina_seleccionada == "Inicio":
 Esta plataforma te ayuda a encontrar los kioskos, restaurantes y máquinas expendedoras dentro del campus. 
 Descubre los productos más vendidos, compara precios, revisa sus características y ubícalos fácilmente en nuestro mapa interactivo. 
 Además, podrás dejar tu opinión y ver las calificaciones de otros estudiantes. ¡Todo lo que necesitas para comer bien y sin perder tiempo!
-    """)
+    """) #agregamos una pequeña intro
     st.success("Usa el menú de la izquierda para empezar a explorar.")
 
-# Ejemplo de las demás secciones (puedes ir completándolas)
+# usamos elif para llamar a cada página
 elif pagina_seleccionada == "Mapa":
-    st.title("Mapa de Kioskos y Restaurantes PUCP🗺️")
-    st.info("Aquí se mostrará un mapa interactivo con los lugares para comer.")
+    st.title("Mapa de Kioskos y Restaurantes PUCP🗺️") #st.title para el título de la página
+    st.info("Aquí se mostrará un mapa interactivo con los lugares para comer.") #st.info para remarcar la info importante
 
-    # Cargar la base de datos
+    # Cargamos la base de datos
     df = pd.read_excel("base.xlsx")
 
     # Agrupar por coordenadas y combinar nombres de locales
@@ -55,44 +55,45 @@ elif pagina_seleccionada == "Mapa":
           'producto': 'count'  # o cualquier columna que te dé idea del total
           }).reset_index().rename(columns={'producto': 'total_productos'}))
 
-    # Centrar el mapa en la PUCP
+    # Centramos el mapa en la PUCP
     centro_pucp = [-12.068, -77.080]
     m = folium.Map(location=centro_pucp, zoom_start=17)
 
-    # Agregar marcadores
+    # agregamos los marcadores y editamos para que hagan alusión a restaurantes
     for _, row in lugares.iterrows():
         popup_text = f"<b>Lugares:</b> {row['lugar']}<br><b>Total de productos:</b> {row['total_productos']}"
         folium.Marker(
             location=[row['latitud'], row['longitud']],
             popup=popup_text,
-            icon=folium.Icon(color='blue', icon='cutlery', prefix='fa')
+            icon=folium.Icon(color='blue', icon='cutlery', prefix='fa') #con icon editamos color, iconos, etc
         ).add_to(m)
 
     # Mostrar en Streamlit
     st_folium(m, width=700, height=500)
 
-        # Cargar la base de datos
+    #debajo del mapa añadiremos un listado de todos los points con info relevante
+    # Cargamos la base de datos
     df = pd.read_excel("base.xlsx") 
 
     # Agrupar por lugar (una fila por local)
     df_lugares = df.groupby('lugar').first().reset_index()
 
-    # Filtros interactivos
+    # añadimos un filtro para facilitar la búsqueda
     zonas = ["Todas"] + sorted(df_lugares["zona pucp"].dropna().unique().tolist())
     zona_sel = st.selectbox("Filtrar por zona:", zonas)
 
     medios = ["Todos"] + sorted(set(m.strip() for sub in df_lugares["Medio de pago"].dropna() for m in sub.split(",")))
 
-    # Aplicar filtros
+    # aplicamos el fintro, para que sea interactivo
     df_filtrado = df_lugares.copy()
     if zona_sel != "Todas":
         df_filtrado = df_filtrado[df_filtrado["zona pucp"] == zona_sel]
 
-    # Mostrar tabla
+    # Mostramos la tabla
     if not df_filtrado.empty:
         st.subheader("🍴 Lista de establecimientos:")
         st.dataframe(
-            df_filtrado[['lugar', 'zona pucp', 'horario', 'Medio de pago']].reset_index(drop=True),
+            df_filtrado[['lugar', 'zona pucp', 'horario', 'Medio de pago']].reset_index(drop=True), #con ello decidimos qué info mostrar
             use_container_width=True
         )
     else:
@@ -105,27 +106,28 @@ elif pagina_seleccionada == "Recomendaciones":
     # Cargar base
     df = pd.read_excel("base.xlsx")
 
-    # Convertir columnas numéricas correctamente
+    # Convertimos las columnas numéricas correctamente
     df["precio"] = pd.to_numeric(df["precio"], errors="coerce")
 
-    # Estandarizar texto en columnas relevantes
+    # estandarizamos el contenido de la base de datos para evitar errores y omisiones
     df["zona pucp"] = df["zona pucp"].astype(str).str.strip().str.lower()
     df["tipo_general"] = df["tipo_general"].astype(str).str.strip().str.lower()
     df["subtipo"] = df["subtipo"].astype(str).str.strip().str.lower()
     df["proteína"] = df["proteína"].astype(str).str.strip().str.lower()
     df["temperatura"] = df["temperatura"].astype(str).str.strip().str.lower()
 
-    # Pregunta 1: Zona PUCP
+    # para el cuestionario
+    # Pregunta 1: establecemos en qué Zona PUCP se encuentra
     zona = st.selectbox(
         "¿En qué zona de la PUCP te encuentras?",
         ["Selecciona una zona", "Tinkuy", "Sociales", "Librería", "Letras", "Pabellón V", "Gastronomía", "FCI", "Ciencias", "Mc Gregor", "Facultad de Arte y Diseño"]
-    )
+    ) #escribimos las opciones de zonas que se encuentran en la base de datos
 
     # Pregunta 2: Tipo de comida
     tipo_general = st.selectbox("¿Qué te provoca hoy?", ["Selecciona una opción", "Plato de fondo", "Snack", "Bebida", "Postre"])
 
     # Pregunta 3: Presupuesto máximo
-    precio_max = st.number_input("¿Cuál es tu presupuesto máximo (S/.)?", min_value=1.0, step=0.5)
+    precio_max = st.number_input("¿Cuál es tu presupuesto máximo (S/.)?", min_value=1.0, step=0.5) #colocamos mínimo valor para que no puedan colocar valores negativos
 
     # Filtro inicial por precio
     filtro = df[df["precio"] <= precio_max]
@@ -134,7 +136,7 @@ elif pagina_seleccionada == "Recomendaciones":
     if zona != "Selecciona una zona":
         filtro = filtro[filtro["zona pucp"] == zona.lower()]
 
-    # Filtros específicos por tipo de comida
+    # creamos filtros más específicos para cada opción
     if tipo_general == "Plato de fondo":
         filtro = filtro[filtro["tipo_general"] == "plato de fondo"]
 
@@ -143,7 +145,7 @@ elif pagina_seleccionada == "Recomendaciones":
 
         opcion_veg = st.radio("¿Prefieres opción vegana o con proteína?", ["Vegano", "Con proteína"])
         if opcion_veg == "Vegano":
-            filtro = filtro[filtro["vegano"] == 1]  # Asumiendo que 1 = vegano
+            filtro = filtro[filtro["vegano"] == 1]  # 1 ya que colocamos en nuestra base valores booleanos
         else:
             proteina = st.selectbox("¿Qué proteína prefieres?", ["Res", "Pollo", "Cerdo", "Pescado"])
             filtro = filtro[filtro["proteína"] == proteina.lower()]
@@ -163,14 +165,14 @@ elif pagina_seleccionada == "Recomendaciones":
     elif tipo_general == "Postre":
         filtro = filtro[filtro["tipo_general"] == "postre"]
 
-# Mostrar resultados
+# Mostramos resultados
     if tipo_general != "Selecciona una opción" and zona != "Selecciona una zona" and not filtro.empty:
         st.subheader("🎯 Te recomendamos:")
         resultados = filtro[['producto', 'descripción', 'lugar', 'zona pucp', 'precio', 'Foto del lugar']].head(5)
 
         for i, row in resultados.iterrows():
             st.markdown("---")  # Separador visual
-            st.image(row['Foto del lugar'], width=300, caption=row['lugar'])  # Mostrar imagen
+            st.image(row['Foto del lugar'], width=300, caption=row['lugar'])  # Mostramos imagen
 
             st.write(f"🍴 **Producto:** {row['producto']}")
             st.write(f"📍 **Lugar:** {row['lugar']} ({row['zona pucp']})")
@@ -178,13 +180,13 @@ elif pagina_seleccionada == "Recomendaciones":
             st.write(f"💰 **Precio:** S/. {row['precio']:.2f}")
 
     elif tipo_general != "Selecciona una opción" and zona != "Selecciona una zona" and filtro.empty:
-        st.warning("No se encontraron productos con esas características 😢")
+        st.warning("No se encontraron productos con esas características 😢") #por si no hay ningún producto que se ajuste a los filtros
 
 elif pagina_seleccionada == "Ranking":
     st.title("Ranking de lugares 🏆")
     st.info("Rankea tus points favoritos.")
 
-    # Lista simulada de lugares
+    # Lista de todos los establecimientos
     lugares = ["De afuera pa dentro", "Pollería Cocotte", "Ntx", "Bembos", "Street Attitud", "Tiendita Marva",
                "Juan Valdez Café", "Frutilla", "Elemar", "Gelarti", "Kilomío", "Diodo", 'Kiosco Sociales "Isalia y Enrique"',
                "Comedor central", "Máquina vendomática", "Máquinas Coca Cola", "Máquina Lavazza", "Comedor de letras",
@@ -194,7 +196,7 @@ elif pagina_seleccionada == "Ranking":
     estrellas = st.slider("¿Cuántas estrellas le das?", 1, 5)
     comentario = st.text_area("Deja un comentario (opcional):")
 
-    # Crear espacio de almacenamiento temporal
+    # Creamos un espacio de almacenamiento temporal
     if 'calificaciones' not in st.session_state:
         st.session_state.calificaciones = {}
 
@@ -209,25 +211,24 @@ elif pagina_seleccionada == "Ranking":
         })
         st.success(f"Gracias por tu opinión sobre {lugar_seleccionado} ⭐")
 
-    # Ver resultados
+    # Para visualizar los resultados
     if st.checkbox("Ver puntuaciones registradas"):
         if 'calificaciones' in st.session_state:
             for lugar, datos in st.session_state.calificaciones.items():
                 st.subheader(lugar)
                 for i, d in enumerate(datos, 1):
-                    st.write(f"{i}. ⭐ {d['puntos']} - {d['comentario']}")
+                    st.write(f"{i}. ⭐ {d['puntos']} - {d['comentario']}") #anidamos los dos resultados
 
 elif pagina_seleccionada == "¿Sin tiempo de elegir?":
     st.title("¿Sin tiempo de elegir?")
     st.info("¿Muy ocupado? Encuentra tu combo perfecto y ahorra tiempo.")
-        # Verificar que la columna existe
     
     df = pd.read_excel("base.xlsx") 
-
+    #para verificar que la columna existe y evitar errores
     if "combo/pack/promoción" not in df.columns:
         st.error("La columna 'combo/pack/promoción' no existe en la base de datos.")
     else:
-        # Filtrar los productos que sean combos (donde la columna es 1)
+        # filtramos los productos que sean combos (donde la columna es 1 por booleanos)
         combos = df[df["combo/pack/promoción"] == 1]
 
         if combos.empty:
