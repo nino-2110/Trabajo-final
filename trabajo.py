@@ -166,16 +166,20 @@ elif pagina_seleccionada == "Recomendaciones":
 # Mostramos resultados
     if tipo_general != "Selecciona una opción" and zona != "Selecciona una zona" and not filtro.empty:
         st.subheader("🎯 Te recomendamos:")
-        resultados = filtro[['producto', 'descripción', 'lugar', 'zona pucp', 'precio', 'Foto del lugar']].head(5)
+        resultados = filtro[['producto', 'descripción', 'lugar', 'zona pucp', 'precio',
+                             'Foto del lugar', 'temperatura', 'Tiempo de preparación/atención aproximado en min', 'gluten']].head(5)
 
         for i, row in resultados.iterrows():
             st.markdown("---")  # Separador visual
-            st.image(row['Foto del lugar'], width=300, caption=row['lugar'])  # Mostramos imagen
+            st.image(row['Foto del lugar'], width=300, caption=row['lugar'])  # Imagen del lugar
 
             st.write(f"🍴 **Producto:** {row['producto']}")
             st.write(f"📍 **Lugar:** {row['lugar']} ({row['zona pucp']})")
             st.write(f"📝 **Descripción:** {row['descripción']}")
             st.write(f"💰 **Precio:** S/. {row['precio']:.2f}")
+            st.write(f"🌡️ **Temperatura:** {row['temperatura'].capitalize() if pd.notna(row['temperatura']) else 'No especificado'}")
+            st.write(f"⏱️ **Tiempo aprox. de preparación:** {int(row['Tiempo de preparación/atención aproximado en min']) if pd.notna(row['Tiempo de preparación/atención aproximado en min']) else 'No disponible'} min")
+            st.write(f"🌾 **¿Contiene gluten?:** {'Sí' if row['gluten'] == 1 else 'No'}")
 
     elif tipo_general != "Selecciona una opción" and zona != "Selecciona una zona" and filtro.empty:
         st.warning("No se encontraron productos con esas características 😢") #por si no hay ningún producto que se ajuste a los filtros
